@@ -12,6 +12,7 @@ class DataGenerator(Dataset):
 
     def __init__(self, conf, gan):
         # Default shapes
+        self.conf = conf
         self.g_input_shape = conf.input_crop_size
         self.d_input_shape = gan.G.output_size  # shape entering D downscaled by G
         self.d_output_shape = self.d_input_shape - gan.D.forward_shave
@@ -26,12 +27,12 @@ class DataGenerator(Dataset):
         self.crop_indices_for_g, self.crop_indices_for_d = self.make_list_of_crop_indices(conf=conf)
 
     def __len__(self):
-        return 1
+        return self.conf.max_iters #max_iters
 
     def __getitem__(self, idx):
         """Get a crop for both G and D """
-        g_in = self.next_crop(for_g=True, idx=idx)
-        d_in = self.next_crop(for_g=False, idx=idx)
+        g_in = self.next_crop(for_g=True, idx=idx)[0]
+        d_in = self.next_crop(for_g=False, idx=idx)[0]
 
         return g_in, d_in
 

@@ -24,11 +24,15 @@ class Generator(nn.Module):
 
     def forward(self, input_tensor):
         # Swap axis of RGB image for the network to get a "batch" of size = 3 rather the 3 channels
-        input_tensor = swap_axis(input_tensor)
+        # input_tensor = swap_axis(input_tensor)
+        bs, chan, h, w = input_tensor.shape
+        input_tensor = input_tensor.view(bs*chan,1,h,w)
         downscaled = self.first_layer(input_tensor)
         features = self.feature_block(downscaled)
         output = self.final_layer(features)
-        return swap_axis(output)
+        _, _, h, w = output.shape
+        output = output.view(bs,chan,h,w)
+        return output
 
 
 class Discriminator(nn.Module):

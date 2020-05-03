@@ -82,6 +82,7 @@ class KernelGAN:
         loss_g = self.criterionGAN(d_last_layer=d_pred_fake, is_d_input_real=True)
         # Sum all losses
         total_loss_g = loss_g + self.calc_constraints(g_pred)
+        print("total_loss_g",total_loss_g)
         # Calculate gradients
         total_loss_g.backward()
         # Update weights
@@ -114,6 +115,7 @@ class KernelGAN:
         loss_d_fake = self.criterionGAN(d_pred_fake, is_d_input_real=False)
         loss_d_real = self.criterionGAN(d_pred_real, is_d_input_real=True)
         loss_d = (loss_d_fake + loss_d_real) * 0.5
+        print("loss_d",loss_d)
         # Calculate gradients, note that gradients are not propagating back through generator
         loss_d.backward()
         # Update weights, note that only discriminator weights are updated (by definition of the D optimizer)
@@ -121,6 +123,7 @@ class KernelGAN:
 
     def finish(self):
         final_kernel = post_process_k(self.curr_k, n=self.conf.n_filtering)
+        print("here")
         save_final_kernel(final_kernel, self.conf)
         print('KernelGAN estimation complete!')
         run_zssr(final_kernel, self.conf)

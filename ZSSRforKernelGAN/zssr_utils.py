@@ -201,7 +201,7 @@ def kernel_shift(kernel, sf):
 
 
 def tensorshave(im, margin):
-    shp = tf.shape(im)
+    shp = tf.shape(input=im)
     if shp[3] == 3:
         return im[:, margin:-margin, margin:-margin, :]
     else:
