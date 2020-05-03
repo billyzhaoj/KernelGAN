@@ -59,7 +59,7 @@ class Config:
         """Retrieves the clean image file_name for saving purposes"""
         self.conf.img_name = self.conf.input_image_path.split('/')[-1].replace('ZSSR', '') \
             .replace('real', '').replace('__', '').split('_.')[0].split('.')[0]
-
+        self.conf.img_name = self.conf.img_name.split('\\')[-1]
     def set_gpu_device(self):
         """Sets the GPU device if one is given"""
         if os.environ.get('CUDA_VISIBLE_DEVICES', '') == '':
