@@ -8,35 +8,63 @@ class Learner:
     lambda_sparse_end = 5
     lambda_centralized_end = 1
     lambda_bicubic_min = 5e-6
-
+    previter = 0
+    flag = False
     def __init__(self):
         self.bic_loss_counter = 0
         self.similar_to_bicubic = False  # Flag indicating when the bicubic similarity is achieved
         self.insert_constraints = True  # Flag is switched to false once constraints are added to the loss
-
+        self.previter = 0
+        self.flag = False
     def update(self, iteration, gan):
         if iteration == 0:
             return
-        # Update learning rate every update_l_rate freq
-        if iteration % self.update_l_rate_freq == 0:
+        if iteration // self.update_l_rate_freq > self.previter// self.update_l_rate_freq:
             for params in gan.optimizer_G.param_groups:
                 params['lr'] /= self.update_l_rate_rate
             for params in gan.optimizer_D.param_groups:
                 params['lr'] /= self.update_l_rate_rate
-
-        # Until similar to bicubic is satisfied, don't update any other lambdas
         if not self.similar_to_bicubic:
             if gan.loss_bicubic < self.bic_loss_to_start_change:
                 if self.bic_loss_counter >= 2:
                     self.similar_to_bicubic = True
+                    print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
                 else:
                     self.bic_loss_counter += 1
             else:
                 self.bic_loss_counter = 0
         # Once similar to bicubic is satisfied, consider inserting other constraints
-        elif iteration % self.lambda_update_freq == 0 and gan.lambda_bicubic > self.lambda_bicubic_min:
+        elif iteration // self.lambda_update_freq > self.previter// self.lambda_update_freq and gan.lambda_bicubic > self.lambda_bicubic_min:
             gan.lambda_bicubic = max(gan.lambda_bicubic / self.lambda_bicubic_decay_rate, self.lambda_bicubic_min)
             if self.insert_constraints and gan.lambda_bicubic < 5e-3:
                 gan.lambda_centralized = self.lambda_centralized_end
                 gan.lambda_sparse = self.lambda_sparse_end
                 self.insert_constraints = False
+                print("BBBBBBBBBBBBBBBBBBBBBBBBBBB")
+                self.flag = True
+        self.previter = iteration
+        # Update learning rate every update_l_rate freq
+        # if iteration % self.update_l_rate_freq == 0:
+        #     for params in gan.optimizer_G.param_groups:
+        #         params['lr'] /= self.update_l_rate_rate
+        #     for params in gan.optimizer_D.param_groups:
+        #         params['lr'] /= self.update_l_rate_rate
+
+        # Until similar to bicubic is satisfied, don't update any other lambdas
+        # if not self.similar_to_bicubic:
+        #     if gan.loss_bicubic < self.bic_loss_to_start_change:
+        #         if self.bic_loss_counter >= 2:
+        #             self.similar_to_bicubic = True
+        #             print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+        #         else:
+        #             self.bic_loss_counter += 1
+        #     else:
+        #         self.bic_loss_counter = 0
+        # # Once similar to bicubic is satisfied, consider inserting other constraints
+        # elif iteration % self.lambda_update_freq == 0 and gan.lambda_bicubic > self.lambda_bicubic_min:
+        #     gan.lambda_bicubic = max(gan.lambda_bicubic / self.lambda_bicubic_decay_rate, self.lambda_bicubic_min)
+        #     if self.insert_constraints and gan.lambda_bicubic < 5e-3:
+        #         gan.lambda_centralized = self.lambda_centralized_end
+        #         gan.lambda_sparse = self.lambda_sparse_end
+        #         self.insert_constraints = False
+        #         print("BBBBBBBBBBBBBBBBBBBBBBBBBBB")

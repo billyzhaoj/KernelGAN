@@ -6,17 +6,22 @@ from data import DataGenerator
 from kernelGAN import KernelGAN
 from learner import Learner
 from torch.utils.data import DataLoader
-
+batch_size = 16
 def train(conf):
     gan = KernelGAN(conf)
     learner = Learner()
     data = DataGenerator(conf, gan)
-    dataloader = DataLoader(data, batch_size=1,
-                        shuffle=True)
+    dataloader = DataLoader(data, batch_size=batch_size,
+                        shuffle=False)
+    timer = 0
     for i_batch, sample_batched in enumerate(tqdm.tqdm(dataloader)):
         g_in,d_in = sample_batched
         gan.train(g_in,d_in)
-        learner.update(i_batch, gan)
+        learner.update(i_batch*batch_size, gan)
+        if learner.flag:
+            timer += 1
+        if timer > 10:
+            break
     gan.finish()
     # for iteration in tqdm.tqdm(range(conf.max_iters), ncols=60):
     #     [g_in, d_in] = data.__getitem__(iteration)

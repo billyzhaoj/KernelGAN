@@ -23,7 +23,7 @@ class Config:
     back_projection_iters = [2]  # for each scale num of bp iterations (same length as scale_factors)
     random_crop = True
     crop_size = 128
-    noise_std = 0.  # adding noise to lr-sons. small for real images, bigger for noisy images and zero for ideal case
+    noise_std = 1.  # adding noise to lr-sons. small for real images, bigger for noisy images and zero for ideal case
     init_net_for_each_sf = False  # for gradual sr- should we optimize from the last sf or initialize each time?
 
     # Params concerning learning rate policy
